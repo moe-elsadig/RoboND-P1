@@ -180,6 +180,4 @@ def perception_step(Rover):
     Rover.nav_dists = nav_dists
     Rover.nav_angles = nav_angles
 
-    # count += 1
-
     return Rover
