@@ -36,6 +36,7 @@
 [image12]: ./output/warped_obs_terrain.jpg
 [image13]: ./output/warped_rock.jpg
 [image14]: ./output/warped_rocks.jpg
+[image15]: ./output/test_mapping2.mp4
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/916/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -59,6 +60,7 @@ and here are the calibration images:
 ### Task:
 
 Define the perspective transform function from the lesson and test it on an image.
+> (perception.py: 106-111)
 
 ### Solution:
 
@@ -67,6 +69,7 @@ By selecting source coordinates and destination coordinates, we are essentially 
 By performing a perspective transform to a mimic a top-down camera view (with a reduced FOV) to study the surrounding of our rover.
 
 Here I have used to experimentally obtained coordinates that visually matched the sample transformation image the most, making sure that the grid lines remained parallel as far as can be seen with respect to the increasing distortion the further you are from the camera.
+> (perception.py: 120-130)
 
 As per the note stating the camera's position on the rover itself, the transformed image is slightly pulled further towards the bottom, this gives us the effect of mapping what the car sees immediately after the rover only.
 
@@ -78,16 +81,20 @@ As per the note stating the camera's position on the rover itself, the transform
 ### Task:
 
 Define the color thresholding function from the lesson and apply it to the warped image.
+> (perception.py: 6-51)
 
 ### Solution:
 
 ![alt text][image13]
+
+> (perception.py: 132-133)
 
 #### Navigable terrain:
 Navigable terrain is the first step to solving this task, and to obtain the best results by experimentation, we make use of IPyWidgets, specifically, Interact.
 With interact we can specify three sliders (ranges, 0-255) and watch as we drag how changing each value affects our desired output.
 
 Eventually I landed on the values (200,150,150) for r, g, and b respectively. I feel red has the strongest effect when trying to distinguish dark and light areas in an image.
+> (perception.py: 39)
 
 ![alt text][image11]
 
@@ -97,11 +104,13 @@ Needless to say, obstacles are anywhere we can't go, so flipping our output from
 We can start by reversing the navigable terrain output but we'll end up with a false obstacle detection for the the entire area outside our field of view.
 
 To counter this effect we can theoretically map the entire field of view as an obstacle with the help of a mask, and subtract our inverted navigable terrain output. With this we end up with an image of obstacles only within our current FOV.
+> (perception.py: 40,45-48)
 
 ![alt text][image12]
 
 #### Rocks:
 The specimens we wish to find are of a specific colour, in this case yellow. In the RGB colour space, R and G are the two channels mainly responsible with reproducing the colour yellow. Again by modifying our threshold and output to use Interact's sliders, we eventually end up with the values 75, 75 and 50 for RGB respectively with the relations (>, >, <).
+> (perception.py: 41)
 
 ![alt text][image14]
 
@@ -111,6 +120,7 @@ The specimens we wish to find are of a specific colour, in this case yellow. In 
 ### Task:
 
 Define the functions used to do coordinate transforms and apply them to an image.
+> (perception.py: 53-103)
 
 ### Solution:
 
@@ -126,9 +136,9 @@ Define the functions used to do coordinate transforms and apply them to an image
 **pix_to_world:** This function combines the other two left-over functions **rotate_pix and translate_pix** to give us map coordinates. The reason we need map coordinates other than a lovely mini-map while the rover is moving, is that it helps to create a history of the terrain that's already been traversed and mark down landmarks and points of interest for later analysis (or rock retrieval in this case). To achieve this effect, our rover's current position and all other telemetry calculated up to this point is used to rotate and translate the pixels in a uniform and scaled manor to our world-map.
 
 **Note:** A simple method of directing the rover through clear terrain is to average the angles obtain in the polar coordinate transformation and using it's angle away from origin to direct the rover's steering. This is a simplistic method full of corner-cases and might not be suitable for real-world applications.
+> (perception.py: 148-166)
 
 ![alt text][image6]
-
 
 ## Write a function to process stored images
 
@@ -159,6 +169,10 @@ Send the warped image to apply all the thresholds we defined in the color_thresh
 Convert the thresholded images into rover centric coordinates to be used for two functions. The first is to convert these Cartesian coordinates to polar distances and angles. The current method uses the angles to determine clear terrain and with it the steering angle. The second is to map the rovers position and what it sees to the world-map by scaling, translating and rotating the available telemetry.
 
 The map information is passed in to different channels (obstacles = red, navigable = blue, yellow = green) for clear distinction and easy to read visualization.
+
+> (perception.py: 168-181)
+
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/WJ2f8S_dswg/0.jpg)](https://youtu.be/WJ2f8S_dswg)
 
 **Step 4: note specific**
 Initialize an empty array combining the dimensions of the image and map. Combine in this image the camera view, warped view, and live world-map.
