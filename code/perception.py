@@ -3,7 +3,6 @@ import cv2
 
 # Identify pixels above the threshold
 # Threshold of RGB > 160 does a nice job of identifying ground pixels only
-# @interact(img=fixed(warped), rgb_thresh=fixed((-1, -1, -1)), r=(0,255,1), g=(0,255,1), b=(0,255,1))
 def color_thresh(img, rgb_thresh=(-1, -1, -1), r=200 , g=150 , b=150):
 
     # check which method was used to pass the threshold values with
@@ -12,7 +11,7 @@ def color_thresh(img, rgb_thresh=(-1, -1, -1), r=200 , g=150 , b=150):
         g = rgb_thresh[1]
         b = rgb_thresh[2]
 
-    # maske for better obstacle detection based on field of view
+    # mask for better obstacle detection based on field of view
     mask = np.ones_like(img[:,:,0])
     mask = img[:,:,0]
 
@@ -41,22 +40,12 @@ def color_thresh(img, rgb_thresh=(-1, -1, -1), r=200 , g=150 , b=150):
     obstacle[below_thresh] = 1
     rock[rock_thresh] = 1
 
+    # combine the obstacle detection with the mask and threshold
+    # this gives the obstacles detected only within the field of view
     mask = mask*obstacle
     obs_fov_thresh = mask[:,:] > 0.1
     mask[obs_fov_thresh] = 1
-
     obstacle = mask
-
-#     fig = plt.figure(figsize=(12,9))
-#     plt.subplot(221)
-#     plt.imshow(img)
-#     plt.subplot(222)
-#     plt.imshow(navigable, cmap='gray')
-#     plt.subplot(223)
-#     plt.imshow(obstacle, cmap='gray')
-#     plt.subplot(224)
-#     plt.imshow(rock, cmap='gray') # Uncomment when using interact in the above cell to see the results
-#     plt.clf()
 
     # Return the binary image
     return navigable, obstacle, rock
